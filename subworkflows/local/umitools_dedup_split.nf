@@ -40,14 +40,13 @@ workflow UMITOOLS_DEDUP_SPLIT {
                         [bam]
                 }
                 .flatten()
-                .map{
-                    bam ->
-                        bam_basename = bam.toString().split('/')[-1]
-                        split_bam_basename = bam_basename.split(/\./)
-                        meta = [
-                            'id': split_bam_basename.take(split_bam_basename.size()-1).join("."),
-                        ]
-                        [ meta, bam ]
+                .map{ bam ->
+                    def bam_basename = bam.toString().split('/')[-1]
+                    def split_bam_basename = bam_basename.split(/\./)
+                    def new_meta = [
+                        'id': split_bam_basename.take(split_bam_basename.size()-1).join("."),
+                    ]
+                    [ new_meta, bam ]
                 }
             //
             // MODULE: Samtools Index
@@ -81,10 +80,10 @@ workflow UMITOOLS_DEDUP_SPLIT {
                 UMITOOLS_DEDUP.out.bam
                     .map{
                         meta, bam ->
-                            bam_basename = bam.toString().split('/')[-1]
-                            split_bam_basename = bam_basename.split(/\./)
-                            meta = [ 'id': split_bam_basename[0] ]
-                        [ meta, bam ]
+                            def bam_basename = bam.toString().split('/')[-1]
+                            def split_bam_basename = bam_basename.split(/\./)
+                            def new_meta = [ 'id': split_bam_basename[0] ]
+                        [ new_meta, bam ]
                     }
                     .groupTuple(),
                 fasta,
