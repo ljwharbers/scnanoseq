@@ -4,8 +4,8 @@ process NANOPLOT {
 
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/nanoplot:1.41.6--pyhdfd78af_0' :
-        'biocontainers/nanoplot:1.41.6--pyhdfd78af_0' }"
+        'https://depot.galaxyproject.org/singularity/nanoplot:1.46.1--pyhdfd78af_0' :
+        'biocontainers/nanoplot:1.46.1--pyhdfd78af_0' }"
 
     input:
     tuple val(meta), path(ontfile)
@@ -14,7 +14,6 @@ process NANOPLOT {
     tuple val(meta), path("*.html")                , emit: html
     tuple val(meta), path("*.png") , optional: true, emit: png
     tuple val(meta), path("*.txt")                 , emit: txt
-    tuple val(meta), path("*.log")                 , emit: log
     path  "versions.yml"                           , emit: versions
 
     when:
@@ -22,7 +21,7 @@ process NANOPLOT {
 
     script:
     def args = task.ext.args ?: ''
-    def input_file = [ ".fastq.gz", ".fastq", ".fq", ".fq.gz" ].any { "$ontfile".endsWith(it) } ? "--fastq ${ontfile}" :
+    def input_file = [ ".fastq.gz", ".fastq", ".fq", ".fq.gz" ].any { ext -> "$ontfile".endsWith(ext) } ? "--fastq ${ontfile}" :
         ("$ontfile".endsWith(".txt")) ? "--summary ${ontfile}" : ''
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
@@ -46,17 +45,17 @@ process NANOPLOT {
     """
 
     stub:
+    def prefix = task.ext.prefix ?: "${meta.id}"
     """
-    touch LengthvsQualityScatterPlot_dot.html
-    touch LengthvsQualityScatterPlot_kde.html
-    touch NanoPlot-report.html
-    touch NanoPlot_20240301_1130.log
-    touch NanoStats.txt
-    touch Non_weightedHistogramReadlength.html
-    touch Non_weightedLogTransformed_HistogramReadlength.html
-    touch WeightedHistogramReadlength.html
-    touch WeightedLogTransformed_HistogramReadlength.html
-    touch Yield_By_Length.html
+    touch ${prefix}_LengthvsQualityScatterPlot_dot.html
+    touch ${prefix}_LengthvsQualityScatterPlot_kde.html
+    touch ${prefix}_NanoPlot-report.html
+    touch ${prefix}_NanoStats.txt
+    touch ${prefix}_Non_weightedHistogramReadlength.html
+    touch ${prefix}_Non_weightedLogTransformed_HistogramReadlength.html
+    touch ${prefix}_WeightedHistogramReadlength.html
+    touch ${prefix}_WeightedLogTransformed_HistogramReadlength.html
+    touch ${prefix}_Yield_By_Length.html
 
 
     cat <<-END_VERSIONS > versions.yml

@@ -6,7 +6,7 @@
 
 ## Samplesheet input
 
-You will need to create a samplesheet with information about the samples you would like to analyse before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 3 columns, and a header row as shown in the examples below.
+You will need to create a samplesheet with information about the samples you would like to analyse before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 4 columns, and a header row as shown in the examples below.
 
 ```bash
 --input '[path to samplesheet file]'
@@ -17,20 +17,25 @@ You will need to create a samplesheet with information about the samples you wou
 The example `samplesheet.csv` below contains a single FASTQ file per biological replicate with sample specific cell counts.
 
 ```csv title="samplesheet.csv"
-sample,fastq,cell_count
-CONTROL_REP1,AEG588A1_S1.fastq.gz,5000
-CONTROL_REP2,AEG588A2_S1.fastq.gz,6000
-CONTROL_REP3,AEG588A3_S1.fastq.gz,5000
-TREATMENT_REP1,AEG588A4_S1.fastq.gz,5500
-TREATMENT_REP2,AEG588A5_S1.fastq.gz,6000
-TREATMENT_REP3,AEG588A6_S1.fastq.gz,5000
+sample,fastq,cell_count,type
+CONTROL_REP1,AEG588A1_S1.fastq.gz,5000,cdna
+CONTROL_REP2,AEG588A2_S1.fastq.gz,6000,cdna
+TREATMENT_REP1,AEG588A4_S1.fastq.gz,5500,cdna
+TREATMENT_REP2,AEG588A5_S1.fastq.gz,6000,cdna
+CONTROL_REP1,AEG588A1_S1.fastq.gz,5000,dna
+CONTROL_REP2,AEG588A2_S1.fastq.gz,6000,dna
+TREATMENT_REP1,AEG588A4_S1.fastq.gz,5500,dna
+TREATMENT_REP2,AEG588A5_S1.fastq.gz,6000,dna
 ```
 
 | Column       | Description                                                                                                                                                                            |
 | ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `sample`     | Custom sample name. This entry will be identical for multiple sequencing libraries/runs from the same sample. Spaces in sample names are automatically converted to underscores (`_`). |
 | `fastq`      | Full path to FastQ file for Oxford Nanopore. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                                    |
-| `cell_count` | Expected number of cells/nuclei. This value is used by the barcode calling tool (BLAZE) as a baseline when determining an acceptable number of detected barcodes.                      |
+| `cell_count` | Expected number of cells/nuclei. This value is used by the barcode calling tool (BLAZE and/or Flexiplex) as a baseline when determining an acceptable number of detected barcodes.     |
+| `type`       | An optional column specifiying whether the sample is DNA or cDNA. If omitted, the default `cdna` is used.                                                                              |
+
+Note: DNA samples are only compatible with `flexiplex` demultiplexing.
 
 An [example samplesheet](../assets/samplesheet.csv) has been provided with the pipeline.
 
@@ -39,14 +44,14 @@ An [example samplesheet](../assets/samplesheet.csv) has been provided with the p
 The `sample` identifiers have to be the same when you have re-sequenced the same sample more than once e.g. to increase sequencing depth. The pipeline will concatenate the raw reads before performing any downstream analysis. Below is an example for the same sample sequenced across replicates 1 and 4 (`REP1` and `REP4` respectively):
 
 ```csv title="samplesheet.csv"
-sample,fastq,cell_count
-CONTROL_REP1,AEG588A1_S1.fastq.gz,5000
-CONTROL_REP1,AEG588A1_S2.fastq.gz,5000
-CONTROL_REP2,AEG588A2_S1.fastq.gz,2000
-CONTROL_REP3,AEG588A3_S1.fastq.gz,7500
-CONTROL_REP4,AEG588A4_S1.fastq.gz,9000
-CONTROL_REP4,AEG588A4_S2.fastq.gz,9000
-CONTROL_REP4,AEG588A4_S3.fastq.gz,9000
+sample,fastq,cell_count,type
+CONTROL_REP1,AEG588A1_S1.fastq.gz,5000,cdna
+CONTROL_REP1,AEG588A1_S2.fastq.gz,5000,cdna
+CONTROL_REP2,AEG588A2_S1.fastq.gz,2000,cdna
+CONTROL_REP3,AEG588A3_S1.fastq.gz,7500,cdna
+CONTROL_REP4,AEG588A4_S1.fastq.gz,9000,cdna
+CONTROL_REP4,AEG588A4_S2.fastq.gz,9000,cdna
+CONTROL_REP4,AEG588A4_S3.fastq.gz,9000,cdna
 ```
 
 ## Running the pipeline
@@ -61,12 +66,16 @@ nextflow run nf-core/scnanoseq \
   --transcript_fasta /path/to/transcriptome.fa \
   --gtf /path/to/file.gtf \
   --quantifier "isoquant,oarfish" \
+  --demux_tool_cdna flexiplex \
+  --demux_tool_dna flexiplex \
   --barcode_format 10X_3v3 \
   -profile <docker/singularity/institute>
 ```
 
-Please note that while the above command specifies both transcriptome and genome fasta files, only one is needed for the pipeline and is dependent on which quantifier you wish to use.
+Please note that while the above command specifies both transcriptome and genome fasta files, only one is needed for the pipeline and is dependent on which quantifier you wish to use. Isoquant requires a genome fasta, while oarfish requires a transcript fasta. Furthermore, if you have any DNA samples, the `genome_fasta` is required.
 Additionally, for the `quantifier` parameter in the above command, we've listed the quantifiers as a comma-delimited string. It is possible to only use one quantifier, and can be accomplished by just providing the name of the quantifying tool you wish to run as a single value, i.e. providing `oarfish` if you only wish to run `oarfish`.
+
+The pipeline supports barcode identification and extraction through both `flexiplex` and `blaze` and can be set through `demux_tool_dna` (only works with `flexiplex` for now) and `demux_tool_cdna` parameters. The barcode format can be specified through the `barcode_format` parameter. When working with completely custom barcode structures, you can additionally specify these with `custom_flexiplex_barcode_dna` and `custom_flexiplex_barcode_cdna` parameters. Note: ensure that you are using `flexiplex` as the barcode calling tool. This can be a string formatted as follows `"-x CTACACGACGCTCTTCCGATCT -b ???????????????? -u ?????????? -x TTTCTTATATGGG -f 8 -e 2"`, for more information check the documentation: https://davidsongroup.github.io/flexiplex/
 
 Note that the pipeline will create the following files in your working directory:
 
@@ -159,7 +168,7 @@ If `-profile` is not specified, the pipeline will run locally and expect all sof
 - `shifter`
   - A generic configuration profile to be used with [Shifter](https://nersc.gitlab.io/development/shifter/how-to-use/)
 - `charliecloud`
-  - A generic configuration profile to be used with [Charliecloud](https://hpc.github.io/charliecloud/)
+  - A generic configuration profile to be used with [Charliecloud](https://charliecloud.io/)
 - `apptainer`
   - A generic configuration profile to be used with [Apptainer](https://apptainer.org/)
 - `wave`
@@ -221,4 +230,85 @@ We recommend adding the following line to your environment to limit this (typica
 
 ```bash
 NXF_OPTS='-Xms1g -Xmx4g'
+```
+
+## Troubleshooting
+
+If you experience any issues, please make sure to reach out on the [#scnanoseq slack channel](https://nfcore.slack.com/archives/C03TUE2K6NS) or [open an issue on our GitHub repository](https://github.com/nf-core/scnanoseq/issues/new/choose). However, some resolutions for common issues will be noted below:
+
+- Due to the nature of the data this pipeline analyzes, some tools may experience increased runtimes. For some of the custom tools made for this pipeline (`preextract_fastq.py` and `correct_barcodes.py`), we have leveraged the splitting done via the `split_amount` parameter to decrease their overall runtimes. The `split_amount` parameter will split the input FASTQs into a number of FASTQ files, each containing a number of lines based on the value used for this parameter. As a result, it is important not to set this parameter to be too low as doing so would cause the creation of a large number of files the pipeline will be processed. While this value can be highly dependent on the data, a good starting point for an analysis would be to set this value to `500000`. If you find that `PREEXTRACT_FASTQ` and `CORRECT_BARCODES` are still taking long amounts of time to run, it would be worth reducing this parameter to `200000` or `100000`, but keeping the value on the order of hundred of thousands or tens of thousands should help with keeping the total number of processes minimal. An example of setting this parameter to be equal to 500000 is shown below:
+
+```yml title="params.yml"
+split_amount: 500000
+```
+
+- We have seen a recurrent node failure on slurm clusters that does seem to be related to submission of Nextflow jobs. This issue is not related to this pipeline per se, but rather to Nextflow itself. We are currently working on a resolution. But we have two methods that appear to help overcome should this issue arise:
+  1. Provide a custom config that increases the memory request for the job that failed. This may take a couple attempts to find the correct requests, but we have noted that there does appear to be a memory issue occasionally with these errors.
+  2. Request an interactive session with a decent amount of time and memory and CPUs in order to run the pipeline on the single node. Note that this will take time as there will be minimal parallelization, but this does seem to resolve the issue.
+- We note that umitools dedup can take a large amount of time in order to perform deduplication. One approach we have implemented to assist with speed is to split input files based on chromosome. However for the transcriptome aligned bams, there is some additional work required that involves grouping transcripts into appropriate chromosomes. In order to accomplish this, the pipeline needs to parse the transcript id from the transcriptome FASTA file. The transcript id is often nested in the sequence identifier with additional data and the data is delimited. We have included the delimiters used by reference files obtained from GENCODE, NCBI, and Ensembl. However in case you wish to explicitly control this or if the reference file source uses a different delimiter, you are able to manually set it via the `--fasta_delimiter` parameter.
+- We acknowledge that analyzing PromethION data is a common use case for this pipeline. Currently, the pipeline has been developed with defaults to analyze GridION and average sized PromethION data. For cases, where jobs have fail due for larger PromethION datasets, the defaults can be overwritten by a custom configuation file (provided by the `-c` Nextflow option) where resources can be increased (substantially in some cases). Below are some of the overrides we have used, and while these amounts may not work on every dataset, these will hopefully at least note which processes will need to have their resources increased:
+
+```groovy title="custom.config"
+
+process
+{
+    withName: '.*:.*FASTQC.*'
+    {
+        cpus = 20
+    }
+}
+
+process
+{
+    withName: '.*:BLAZE'
+    {
+        cpus = 30
+    }
+}
+
+process
+{
+    withName: '.*:TAG_BARCODES'
+    {
+        memory = '60.GB'
+    }
+}
+
+process
+{
+    withName: '.*:SAMTOOLS_SORT'
+    {
+        cpus = 20
+    }
+}
+
+process
+{
+    withName: '.*:MINIMAP2_ALIGN'
+    {
+        cpus = 20
+    }
+}
+
+process
+{
+    withName: '.*:ISOQUANT'
+    {
+        cpus = 30
+        memory = '85.GB'
+    }
+}
+```
+
+We further note that while we encourage the use of `split_amount` as discussed above for larger datasets, the pipeline can be executed without enabling this parameter. When doing this, please consider increasing the time limit to `CORRECT_BARCODES` as it can take hours instead of minutes when `split_amount` is disabled:
+
+```groovy title="custom.config"
+//NOTE: with split_amount disabled, consider increasing the time limit to CORRECT_BARCODES
+process
+{
+    withName: '.*:CORRECT_BARCODES'
+    {
+        time = '15.h'
+    }
+}
 ```

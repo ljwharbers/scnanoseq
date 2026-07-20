@@ -18,11 +18,17 @@
                 "format": "file-path",
                 "unique": true,
                 "exists": true,
-                "pattern": "^\\S+\\.f(ast)?q\\.gz$",
+                "pattern": "^([\\S\\s]*\\/)?[^\\s\\/]+\\.f(ast)?q\\.gz$",
                 "errorMessage": "FastQ file for reads 1 must be provided, cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'"
             },
             "cell_count": {
                 "type": "integer"
+            },
+            "type": {
+                "type": "string",
+                "enum": ["dna", "cdna"],
+                "default": "cdna",
+                "errorMessage": "Type must be either 'dna' or 'cdna'. Default is 'cdna'."
             }
         },
         "required": ["sample", "fastq", "cell_count"]
