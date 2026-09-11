@@ -83,6 +83,9 @@
                 "UMITOOLS_DEDUP_MAIN": {
                     "umitools": "1.1.6"
                 },
+                "UMITOOLS_DEDUP_SUMMARY": {
+                    "gawk": "5.3.0"
+                },
                 "Workflow": {
                     "nf-core/scnanoseq": "v1.3.0"
                 }
@@ -140,6 +143,9 @@
                 "ERR9958133/cdna/genome/qc/samtools/minimap/ERR9958133.cdna.genome.minimap.flagstat",
                 "ERR9958133/cdna/genome/qc/samtools/minimap/ERR9958133.cdna.genome.minimap.idxstats",
                 "ERR9958133/cdna/genome/qc/samtools/minimap/ERR9958133.cdna.genome.minimap.stats",
+                "ERR9958133/cdna/genome/qc/umitools",
+                "ERR9958133/cdna/genome/qc/umitools/dedup",
+                "ERR9958133/cdna/genome/qc/umitools/dedup/ERR9958133.cdna.genome.umi_dedup_summary.tsv",
                 "ERR9958133/cdna/qc",
                 "ERR9958133/cdna/qc/nanoplot",
                 "ERR9958133/cdna/qc/nanoplot/post_extract",
@@ -224,6 +230,9 @@
                 "ERR9958134/cdna/genome/qc/samtools/minimap/ERR9958134.cdna.genome.minimap.flagstat",
                 "ERR9958134/cdna/genome/qc/samtools/minimap/ERR9958134.cdna.genome.minimap.idxstats",
                 "ERR9958134/cdna/genome/qc/samtools/minimap/ERR9958134.cdna.genome.minimap.stats",
+                "ERR9958134/cdna/genome/qc/umitools",
+                "ERR9958134/cdna/genome/qc/umitools/dedup",
+                "ERR9958134/cdna/genome/qc/umitools/dedup/ERR9958134.cdna.genome.umi_dedup_summary.tsv",
                 "ERR9958134/cdna/qc",
                 "ERR9958134/cdna/qc/nanoplot",
                 "ERR9958134/cdna/qc/nanoplot/post_extract",
@@ -272,6 +281,7 @@
                 "batch_qcs/multiqc/final_qc/multiqc_data/multiqc_samtools_idxstats.txt",
                 "batch_qcs/multiqc/final_qc/multiqc_data/multiqc_software_versions.txt",
                 "batch_qcs/multiqc/final_qc/multiqc_data/multiqc_sources.txt",
+                "batch_qcs/multiqc/final_qc/multiqc_data/multiqc_umitools_dedup_summary_table.txt",
                 "batch_qcs/multiqc/final_qc/multiqc_data/rseqc_read_distribution_plot.txt",
                 "batch_qcs/multiqc/final_qc/multiqc_data/samtools-flagstat-pct-table.txt",
                 "batch_qcs/multiqc/final_qc/multiqc_data/samtools-flagstat-table.txt",
@@ -291,6 +301,7 @@
                 "batch_qcs/multiqc/final_qc/multiqc_plots/pdf/samtools-idxstats-mapped-reads-plot_Observed_over_Expected_Counts-log.pdf",
                 "batch_qcs/multiqc/final_qc/multiqc_plots/pdf/samtools-idxstats-mapped-reads-plot_Raw_Counts-cnt.pdf",
                 "batch_qcs/multiqc/final_qc/multiqc_plots/pdf/samtools-idxstats-mapped-reads-plot_Raw_Counts-log.pdf",
+                "batch_qcs/multiqc/final_qc/multiqc_plots/pdf/umitools_dedup_summary_table.pdf",
                 "batch_qcs/multiqc/final_qc/multiqc_plots/png",
                 "batch_qcs/multiqc/final_qc/multiqc_plots/png/read_counts_module.png",
                 "batch_qcs/multiqc/final_qc/multiqc_plots/png/rseqc_read_distribution_plot-cnt.png",
@@ -303,6 +314,7 @@
                 "batch_qcs/multiqc/final_qc/multiqc_plots/png/samtools-idxstats-mapped-reads-plot_Observed_over_Expected_Counts-log.png",
                 "batch_qcs/multiqc/final_qc/multiqc_plots/png/samtools-idxstats-mapped-reads-plot_Raw_Counts-cnt.png",
                 "batch_qcs/multiqc/final_qc/multiqc_plots/png/samtools-idxstats-mapped-reads-plot_Raw_Counts-log.png",
+                "batch_qcs/multiqc/final_qc/multiqc_plots/png/umitools_dedup_summary_table.png",
                 "batch_qcs/multiqc/final_qc/multiqc_plots/svg",
                 "batch_qcs/multiqc/final_qc/multiqc_plots/svg/read_counts_module.svg",
                 "batch_qcs/multiqc/final_qc/multiqc_plots/svg/rseqc_read_distribution_plot-cnt.svg",
@@ -315,6 +327,7 @@
                 "batch_qcs/multiqc/final_qc/multiqc_plots/svg/samtools-idxstats-mapped-reads-plot_Observed_over_Expected_Counts-log.svg",
                 "batch_qcs/multiqc/final_qc/multiqc_plots/svg/samtools-idxstats-mapped-reads-plot_Raw_Counts-cnt.svg",
                 "batch_qcs/multiqc/final_qc/multiqc_plots/svg/samtools-idxstats-mapped-reads-plot_Raw_Counts-log.svg",
+                "batch_qcs/multiqc/final_qc/multiqc_plots/svg/umitools_dedup_summary_table.svg",
                 "batch_qcs/multiqc/final_qc/multiqc_report.html",
                 "batch_qcs/read_counts",
                 "batch_qcs/read_counts/read_counts.csv",
@@ -343,6 +356,7 @@
                 "ERR9958133.cdna.genome.minimap.flagstat:md5,6f8b83fe52814bc3e97f451f8a4fd7d2",
                 "ERR9958133.cdna.genome.minimap.idxstats:md5,43173b72bebd33f85418a310225ffed2",
                 "ERR9958133.cdna.genome.minimap.stats:md5,4461909cb774938131f059877cf5b3c6",
+                "ERR9958133.cdna.genome.umi_dedup_summary.tsv:md5,7ae3ca2e986218d7bd0eff87067e1160",
                 "ERR9958133.cdna.extracted_NanoStats.txt:md5,d116ea67bcd87eb30b19183b2bcde68a",
                 "ERR9958133.cdna.trimmed_NanoStats.txt:md5,acfd13fa4c8ed1cf20bfa544cb19804c",
                 "ERR9958133.cdna.raw_NanoStats.txt:md5,27e01d4465515b66f3a18cc1e585000d",
@@ -367,6 +381,7 @@
                 "ERR9958134.cdna.genome.minimap.flagstat:md5,f3b08b4cb9e8eca9267049bb72a0e5cd",
                 "ERR9958134.cdna.genome.minimap.idxstats:md5,e1bec6e09f481b2941445c9d21495973",
                 "ERR9958134.cdna.genome.minimap.stats:md5,b809d093268ace1be1447de6b6713626",
+                "ERR9958134.cdna.genome.umi_dedup_summary.tsv:md5,9f3f77c97642fd7fc6ba9c5953f9802d",
                 "ERR9958134.cdna.extracted_NanoStats.txt:md5,700357b3a6cfc56f536c8c8fd29bc8f0",
                 "ERR9958134.cdna.trimmed_NanoStats.txt:md5,df1ce9b8bcee5e6f87a14266f7c773e8",
                 "ERR9958134.cdna.raw_NanoStats.txt:md5,df1ce9b8bcee5e6f87a14266f7c773e8",
@@ -376,6 +391,7 @@
                 "multiqc_rseqc_read_distribution.txt:md5,76d2e136154cd8a2f9aeb1f3a38693be",
                 "multiqc_samtools_flagstat.txt:md5,e1c347c182c70e5ac21723469195f3ec",
                 "multiqc_samtools_idxstats.txt:md5,3635dcc7386c8fb61bcfb4041021e2aa",
+                "multiqc_umitools_dedup_summary_table.txt:md5,f106482e0a6f95b0a45ff197a5f74e4c",
                 "rseqc_read_distribution_plot.txt:md5,bc0f296df514ae5720103da2849431fd",
                 "samtools-flagstat-pct-table.txt:md5,042f698ceac85dc917513c1c0750aa8e",
                 "samtools-flagstat-table.txt:md5,b3efc70feb7be1b1937577961a465209",
@@ -385,7 +401,7 @@
                 "read_counts.csv:md5,582d4afccfa579c7c50712a185b65674"
             ]
         ],
-        "timestamp": "2026-08-27T13:39:32.489404588",
+        "timestamp": "2026-09-11T14:35:07.586858883",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.04.3"
