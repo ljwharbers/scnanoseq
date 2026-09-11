@@ -104,6 +104,7 @@ workflow PROCESS_LONGREAD_SCRNA {
         ch_bai = channel.empty()
         ch_flagstat = channel.empty()
         ch_idxstats = channel.empty()
+        ch_dedup_summary = channel.empty()
 
         if (!val_skip_dedup) {
             DEDUP_UMIS (
@@ -121,6 +122,7 @@ workflow PROCESS_LONGREAD_SCRNA {
             ch_bam = DEDUP_UMIS.out.dedup_bam
             ch_bai = DEDUP_UMIS.out.dedup_bai
             ch_flagstat = DEDUP_UMIS.out.dedup_flagstat
+            ch_dedup_summary = DEDUP_UMIS.out.dedup_summary
             ch_versions = DEDUP_UMIS.out.versions
         } else {
 
@@ -222,6 +224,7 @@ workflow PROCESS_LONGREAD_SCRNA {
         dedup_bai                = ch_bai      // channel: [ val(meta), path(bai) ]
         dedup_flagstat           = ch_flagstat // channel: [ val(meta), path(flagstat) ]
         dedup_idxstats           = ch_idxstats // channel: [ val(meta), path(idxstats) ]
+        dedup_summary            = ch_dedup_summary // channel: [ val(meta), path(summary_tsv) ]
 
         // Seurat QC Stats
         gene_qc_stats            = ch_gene_qc_stats       // channel: [ val(meta), path(gene_qc_stats) ]
