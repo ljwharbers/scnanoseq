@@ -236,18 +236,28 @@ Assignment is by gene-body overlap and is strand-agnostic. `GX` always holds the
 - `<sample_identifier>/`
   - `genome/`
     - `bam/`
-      - `dedup_umitools/`
+      - `dedup/`
         - `*.dedup.bam` : The genome aligned bam containing corrected barcodes and deduplicated umis.
         - `*.dedup.bam.bai` : The genome aligned bam index for the bam containing corrected barcodes and deduplicated umis.
+    - `qc/`
+      - `umitools/`
+        - `dedup/`
+          - `*.umi_dedup_summary.tsv` : Sample-level deduplication summary (input reads, output reads, duplicate reads, duplication rate, number of dedup runs summed).
   - `transcriptome/`
     - `bam/`
-      - `dedup_umitools/`
+      - `dedup/`
         - `*.dedup.bam` : The transcriptome aligned bam containing corrected barcodes and deduplicated umis.
         - `*.dedup.bam.bai` : The transcriptome aligned bam index for the bam containing corrected barcodes and deduplicated umis.
+    - `qc/`
+      - `umitools/`
+        - `dedup/`
+          - `*.umi_dedup_summary.tsv` : Sample-level deduplication summary (input reads, output reads, duplicate reads, duplication rate, number of dedup runs summed).
 
 </details>
 
 [UMI-Tools](https://umi-tools.readthedocs.io/en/latest/reference/dedup.html) deduplicate reads based on the mapping co-ordinate and the UMI attached to the read. The identification of duplicate reads is performed in an error-aware manner by building networks of related UMIs.
+
+Deduplication is run in parallel on one chunk per chromosome (genome alignment) or per transcript group (transcriptome alignment), and with `--dedup_per_gene` each genome chunk is additionally split into a gene-grouped and a positional run. The per-chunk `umi_tools dedup` logs therefore only hold chunk-level counts and are not published. Instead their `Input Reads` and `Number of reads out` figures are summed into the `*.umi_dedup_summary.tsv` file, which is also shown as the "UMI-tools Deduplication" table in the MultiQC report. The `duplication_rate` column is `duplicate_reads / input_reads`.
 
 Users should note that `oarfish` requires input reads to be deduplicated. As a result, the `skip_dedup` option is only applicable to `IsoQuant`. By default, `scnanoseq` will perform deduplication for IsoQuant unless the `skip_dedup` option is explicitly enabled, while deduplication will always be executed for `oarfish` quantification.
 
@@ -259,12 +269,12 @@ Users should note that `oarfish` requires input reads to be deduplicated. As a r
 - `<sample_identifier>/`
   - `genome/`
     - `bam/`
-      - `dedup_picard/`
+      - `dedup/`
         - `*.dedup.bam` : The genome aligned bam containing corrected barcodes and deduplicated umis.
         - `*.dedup.bam.bai` : The genome aligned bam index for the bam containing corrected barcodes and deduplicated umis.
   - `transcriptome/`
     - `bam/`
-      - `dedup_picard/`
+      - `dedup/`
         - `*.dedup.bam` : The transcriptome aligned bam containing corrected barcodes and deduplicated umis.
         - `*.dedup.bam.bai` : The transcriptome aligned bam index for the bam containing corrected barcodes and deduplicated umis.
 

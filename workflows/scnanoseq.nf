@@ -450,6 +450,9 @@ workflow SCNANOSEQ {
             ch_multiqc_finalqc_files = ch_multiqc_finalqc_files.mix(
                 PROCESS_LONGREAD_SCRNA_GENOME.out.dedup_idxstats.collect{it -> it[1]}.ifEmpty([])
             )
+            ch_multiqc_finalqc_files = ch_multiqc_finalqc_files.mix(
+                PROCESS_LONGREAD_SCRNA_GENOME.out.dedup_summary.collect{it -> it[1]}.ifEmpty([])
+            )
         }
 
         ch_multiqc_finalqc_files = ch_multiqc_finalqc_files.mix(
@@ -509,6 +512,9 @@ workflow SCNANOSEQ {
         if (!params.skip_dedup) {
             ch_multiqc_finalqc_files = ch_multiqc_finalqc_files.mix(
                 PROCESS_LONGREAD_SCRNA_TRANSCRIPT.out.dedup_flagstat.collect{it -> it[1]}.ifEmpty([])
+            )
+            ch_multiqc_finalqc_files = ch_multiqc_finalqc_files.mix(
+                PROCESS_LONGREAD_SCRNA_TRANSCRIPT.out.dedup_summary.collect{it -> it[1]}.ifEmpty([])
             )
         }
 

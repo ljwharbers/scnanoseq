@@ -8,6 +8,7 @@
 include { BAMTOOLS_SPLIT                          } from '../../../modules/nf-core/bamtools/split/main'
 include { UMITOOLS_DEDUP as UMITOOLS_DEDUP_GENE   } from '../../../modules/nf-core/umitools/dedup/main'
 include { UMITOOLS_DEDUP as UMITOOLS_DEDUP_MAIN   } from '../../../modules/nf-core/umitools/dedup/main'
+include { UMITOOLS_DEDUP_SUMMARY                  } from '../../../modules/local/umitools_dedup_summary'
 include { SAMTOOLS_INDEX as SAMTOOLS_INDEX_DEDUP  } from '../../../modules/nf-core/samtools/index/main'
 include { SAMTOOLS_INDEX as SAMTOOLS_INDEX_MERGED } from '../../../modules/nf-core/samtools/index/main'
 include { SAMTOOLS_MERGE                          } from '../../../modules/nf-core/samtools/merge/main'
@@ -117,7 +118,9 @@ workflow DEDUP_UMIS {
                             meta, bam, bai, region ->
                                 def region_basename = region.toString().split('/')[-1]
                                 def split_region_basename = region_basename.split(/\./)
-                                [['id': meta.id + "." + split_region_basename[0]], bam, bai, region]
+                                // Keep the rest of meta (type in particular): the publish
+                                // paths downstream are built from it.
+                                [meta + ['id': meta.id + "." + split_region_basename[0]], bam, bai, region]
                         }
                 )
                 ch_split_bam = SPLIT_BAM.out.split_bam
@@ -143,6 +146,8 @@ workflow DEDUP_UMIS {
 
         ch_dedup_bam = channel.empty()
         ch_dedup_bai = channel.empty()
+        ch_dedup_log = channel.empty()
+        ch_dedup_summary = channel.empty()
 
         if (val_dedup_tool == 'umitools'){
             if (val_per_gene) {
@@ -174,6 +179,7 @@ workflow DEDUP_UMIS {
                     true )
 
                 ch_dedup_bam = UMITOOLS_DEDUP_GENE.out.bam.mix( UMITOOLS_DEDUP_MAIN.out.bam )
+                ch_dedup_log = UMITOOLS_DEDUP_GENE.out.log.mix( UMITOOLS_DEDUP_MAIN.out.log )
 
             } else {
                 //
@@ -183,7 +189,27 @@ workflow DEDUP_UMIS {
                     ch_undedup_bam.join(ch_undedup_bai, by: [0]),
                     true )
                 ch_dedup_bam = UMITOOLS_DEDUP_MAIN.out.bam
+                ch_dedup_log = UMITOOLS_DEDUP_MAIN.out.log
             }
+
+            //
+            // MODULE: Sum the per-chunk dedup logs into one sample-level summary
+            //
+            // Every log is from a chunk of the same sample, so the chunk id is
+            // folded back to the sample id the same way SAMTOOLS_MERGE does below.
+            //
+            UMITOOLS_DEDUP_SUMMARY (
+                ch_dedup_log
+                    .map{
+                        meta, logfile ->
+                            def log_basename = logfile.toString().split('/')[-1]
+                            def split_log_basename = log_basename.split(/\./)
+                            def new_meta = meta + [ 'id': split_log_basename[0] ]
+                        [ new_meta, logfile ]
+                    }
+                    .groupTuple()
+            )
+            ch_dedup_summary = UMITOOLS_DEDUP_SUMMARY.out.summary
 
         } else {
             //
@@ -258,4 +284,5 @@ workflow DEDUP_UMIS {
         dedup_bam      = ch_dedup_bam                    // channel: [ val(meta), path(bam) ]
         dedup_bai      = ch_dedup_bai                    // channel: [ val(meta), path(bai) ]
         dedup_flagstat = BAM_STATS_SAMTOOLS.out.flagstat // channel: [ val(meta), path(flagstat) ]
+        dedup_summary  = ch_dedup_summary                // channel: [ val(meta), path(summary_tsv) ], umitools only
 }
